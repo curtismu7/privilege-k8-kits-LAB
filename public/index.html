@@ -115,7 +115,7 @@
       })();
       (function () {
         var modeSel = document.getElementById("mode-select");
-        var modePill = document.getElementById("mode-pill");
+        var modePill = document.getElementById("modePill");
         function paintMode(info) {
           modeSel.value = info.source;
           modePill.textContent = "mode: " + info.source + (info.realAvailable ? "" : " (real unavailable)");
