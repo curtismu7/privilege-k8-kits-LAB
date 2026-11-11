@@ -5,64 +5,105 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agent Privilege Gateway — Kubernetes Deployment Kits</title>
     <link rel="stylesheet" href="./standalone-ui.css" />
+    <link rel="stylesheet" href="./styles.css" />
     <style>
-      .kits { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
-      @media (max-width: 720px) { .kits { grid-template-columns: 1fr; } }
-      .kit { background: var(--surface, #fff); border: 1px solid var(--control-border, #cdd1d4);
-             border-top: 4px solid var(--ping-red, #d20e0f); border-radius: 8px; padding: 20px; }
-      .kit h2 { font-size: 18px; margin: 6px 0 4px; color: var(--text-strong, #051727); }
-      .kit p.desc { font-size: 14px; color: var(--text-muted, #5c646b); }
-      .kit ul { margin: 10px 0 14px 18px; font-size: 13.5px; }
-      .kit li { margin-bottom: 4px; }
+      /* Kit-page specifics only; layout/components come from styles.css
+         (the shared mock patterns) and tokens from standalone-ui.css. */
+      .kit-list .desc { color: var(--text-body); }
+      .kit-list ul { margin: 0.6rem 0 0.8rem 1.1rem; font-size: 0.85rem; color: var(--text-body); }
+      .kit-list li { margin-bottom: 0.3rem; }
       .btn {
-        display: inline-block; background: var(--ping-red, #d20e0f); color: #fff;
-        text-decoration: none; font-weight: 600; font-size: 14px;
-        padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer;
+        display: inline-block; background: var(--accent); color: var(--on-accent);
+        text-decoration: none; font-weight: 600; font-size: 0.9rem;
+        padding: 0.55rem 1.1rem; border-radius: 8px; border: none; cursor: pointer;
       }
-      .btn:hover { background: var(--ping-red-dark, #aa0005); }
-      .meta { color: var(--text-muted, #5c646b); font-size: 12px; margin-left: 10px; font-family: 'IBM Plex Mono', monospace; }
-      table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 10px; }
-      th { background: var(--core-dark, #051727); color: #fff; text-align: left; padding: 8px 12px; }
-      td { padding: 8px 12px; border: 1px solid var(--control-border, #cdd1d4); }
-      tr:nth-child(even) td { background: var(--surface-alt, #f7f8f8); }
-      .note { background: #eef4fb; border-left: 4px solid #12538d; padding: 12px 16px;
-              border-radius: 4px; font-size: 13.5px; margin-top: 16px; }
-      .checksum { font-family: 'IBM Plex Mono', monospace; font-size: 11px;
-                  color: var(--text-muted, #5c646b); word-break: break-all; margin-top: 8px; }
-      section.card { background: var(--surface, #fff); border: 1px solid var(--control-border, #cdd1d4);
-                     border-radius: 8px; padding: 20px; margin-top: 16px; }
+      .btn:hover { background: var(--accent-deep); }
+      .meta { color: var(--muted); font-size: 0.75rem; margin-left: 0.6rem;
+              font-family: var(--font-mono, 'IBM Plex Mono', monospace); }
+      .checksum { font-family: var(--font-mono, 'IBM Plex Mono', monospace); font-size: 0.7rem;
+                  color: var(--muted); word-break: break-all; margin-top: 0.4rem; }
+      .guide-link { color: var(--focus); }
     </style>
   </head>
   <body>
-    <header class="topbar">
-      <div>
-        <h1>Agent Privilege Gateway — Kubernetes Deployment Kits</h1>
-        <p class="banner" role="note">
-          SIMULATED, OFFLINE: this page only serves files from this app's own kits/ folder —
-          no tenant is contacted, no credentials are involved. The zips are the real deployment
-          kits (Helm chart, Terraform, guide); everything is example placeholders until you fill
-          in your own values.
+    <header class="shell-bar">
+      <span class="shell-brand"><span class="shell-logo">P</span> Agent Privilege K8 Kits</span>
+      <div class="shell-right">
+        <div class="pill" id="modePill" data-testid="mode-pill">mode: —</div>
+        <label class="shell-theme">Mode
+          <select id="mode-select" data-testid="mode-select">
+            <option value="mock">Mock</option>
+            <option value="real" data-testid="mode-real">Real</option>
+          </select>
+        </label>
+        <label class="shell-theme">Theme
+          <select id="theme-select">
+            <option value="auto">Auto</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+      </div>
+    </header>
+
+    <p class="banner" role="note">
+      SIMULATED, OFFLINE: this page only serves files from this app's own kits/ folder —
+      no tenant is contacted and no credentials are involved. The zips are the real
+      deployment kits (Helm chart, Terraform, guide); every value inside is an example
+      placeholder until you fill in your own.
+    </p>
+
+    <main class="page">
+      <p class="section-label">Deployment kits</p>
+      <div class="card-grid" id="kits"><!-- populated from /api/info --></div>
+
+      <p class="section-label">Which kit?</p>
+      <div class="card card--neutral">
+        <table>
+          <tr><th>Requirement</th><th>1 Gateway</th><th>Multi-Gateway</th></tr>
+          <tr><td>Proof of value / single-team pilot</td><td>&#10004;</td><td>Works (over-provisioned)</td></tr>
+          <tr><td>Registrations survive a gateway restart</td><td>—</td><td>&#10004; (shared Redis)</td></tr>
+          <tr><td>Node failover without losing all client state</td><td>— (single node)</td><td>&#10004; (pinning + Redis)</td></tr>
+          <tr><td>Integrated load balancer (stats, park/unpark)</td><td>—</td><td>&#10004; (optional)</td></tr>
+          <tr><td>Operational overhead</td><td>Minimal</td><td>Redis + LB + N namespaces</td></tr>
+        </table>
+      </div>
+
+      <p class="section-label">Shared deployment guide</p>
+      <div class="card card--neutral">
+        <p class="desc">
+          Both kits ship the same 18-page
+          <a class="guide-link" href="/guide" target="_blank" rel="noopener">
+            PingOne Privilege AI Gateway — Kubernetes Deployment Guide</a>
+          (also in each zip under docs/). Start at §3 Prerequisites, then the Quick Start
+          (single-node path) or §6–§8 (HA path). Both target any Kubernetes cluster; on GKE
+          the Terraform installs ingress-nginx, whose Service provisions a Google Network
+          Load Balancer.
         </p>
       </div>
-      <div class="pill" id="modePill" data-testid="mode-pill">mode: —</div>
-      <label class="shell-theme">Mode
-        <select id="mode-select" data-testid="mode-select">
-          <option value="mock">Mock</option>
-          <option value="real" data-testid="mode-real">Real</option>
-        </select>
+
+      <p class="section-label">Verify a download</p>
+      <div class="card card--neutral">
+        <p class="desc">SHA-256 checksums of the shipped zips (regenerate with
+        <code>./checksums.sh</code> after swapping a kit):</p>
+        <div id="checksums" class="checksum"><!-- populated from /api/info --></div>
       </div>
-      <label class="shell-theme">Theme
-        <select id="theme-select">
-          <option value="auto">Auto</option>
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-        </select>
-      </label>
-    </header>
+    </main>
+
     <script>
       (function () {
-        // Mode toggle (rule 19): both sources serve the same packaged
-        // artifacts from disk; the server records the selection.
+        var t = localStorage.getItem("pkgk.theme");
+        if (t && t !== "auto") document.documentElement.dataset.theme = t;
+        var sel = document.getElementById("theme-select");
+        sel.value = localStorage.getItem("pkgk.theme") || "auto";
+        sel.addEventListener("change", function () {
+          var v = sel.value;
+          if (v === "auto") delete document.documentElement.dataset.theme;
+          else document.documentElement.dataset.theme = v;
+          localStorage.setItem("pkgk.theme", v);
+        });
+      })();
+      (function () {
         var modeSel = document.getElementById("mode-select");
         var modePill = document.getElementById("mode-pill");
         function paintMode(info) {
@@ -79,82 +120,46 @@
         });
       })();
       (function () {
-        var sel = document.getElementById("theme-select");
-        var saved = localStorage.getItem("pkgk.theme") || "auto";
-        sel.value = saved;
-        sel.addEventListener("change", function () {
-          var v = sel.value;
-          if (v === "auto") delete document.documentElement.dataset.theme;
-          else document.documentElement.dataset.theme = v;
-          localStorage.setItem("pkgk.theme", v);
+        function fmtBytes(n) {
+          return n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.round(n / 1024) + " KB";
+        }
+        fetch("/api/info").then(function (r) { return r.json(); }).then(function (info) {
+          var wrap = document.getElementById("kits");
+          info.kits.forEach(function (k) {
+            var single = k.id.indexOf("one-") === 0;
+            var d = document.createElement("div");
+            d.className = "card";
+            d.innerHTML =
+              '<div class="chip-row">' +
+                '<span class="chip chip--' + (single ? 'warn' : 'info') + '">' + k.tag + '</span>' +
+                (info.source === 'real' ? '<span class="chip chip--ok">serving</span>' : '') +
+              '</div>' +
+              '<h3>' + k.name + '</h3>' +
+              '<p class="desc">' + k.description + '</p>' +
+              '<ul>' +
+                '<li><b>docs/</b> — guide PDF + generator</li>' +
+                '<li><b>helm/</b> — agent-privilege chart (.tgz + source)' + (single ? ', quickstart-values.yaml' : '') + '</li>' +
+                '<li><b>tf/</b> — Terraform: namespaces, secrets' + (single ? ', gateway release' : ', Redis, load balancer, node releases') + '</li>' +
+              '</ul>' +
+              '<a class="btn" href="' + k.url + '" download>Download kit (.zip)</a>' +
+              '<span class="meta">' + fmtBytes(k.bytes) + (k.sha256 ? ' · sha256 ' + k.sha256.slice(0, 8) + '…' : '') + '</span>' +
+              '<div class="checksum">' + (k.sha256 || '') + '</div>';
+            wrap.appendChild(d);
+          });
+          var cs = document.getElementById("checksums");
+          info.kits.forEach(function (k) {
+            if (!k.sha256) return;
+            var p = document.createElement("div");
+            p.textContent = k.sha256 + "  " + k.file;
+            cs.appendChild(p);
+          });
+          if (!cs.children.length) cs.textContent = "checksums not packaged";
+        }).catch(function () {
+          document.getElementById("kits").innerHTML =
+            '<div class="card card--neutral"><h3>API unreachable</h3>' +
+            '<p class="desc">Start the app with <code>npm start</code> and reload.</p></div>';
         });
       })();
-    </script>
-
-    <main class="layout">
-      <div class="kits" id="kits"><!-- populated from /api/info --></div>
-
-      <section class="card">
-        <h2>Which kit?</h2>
-        <table>
-          <tr><th>Requirement</th><th>1 Gateway</th><th>Multi-Gateway</th></tr>
-          <tr><td>Proof of value / single-team pilot</td><td>&#10004;</td><td>Works (over-provisioned)</td></tr>
-          <tr><td>Registrations survive a gateway restart</td><td>—</td><td>&#10004; (shared Redis)</td></tr>
-          <tr><td>Node failover without losing all client state</td><td>— (single node)</td><td>&#10004; (pinning + Redis)</td></tr>
-          <tr><td>Integrated load balancer (stats, park/unpark)</td><td>—</td><td>&#10004; (optional)</td></tr>
-          <tr><td>Operational overhead</td><td>Minimal</td><td>Redis + LB + N namespaces</td></tr>
-        </table>
-        <div class="note">
-          <b>Shared by both kits:</b> the 18-page
-          <a href="/guide" target="_blank" rel="noopener">PingOne Privilege AI Gateway — Kubernetes Deployment Guide</a>
-          (also in each zip under docs/). Start at §3 Prerequisites, then the Quick Start
-          (single-node path) or §6–§8 (HA path). Both target any Kubernetes cluster; on GKE
-          the Terraform installs ingress-nginx, whose Service provisions a Google Network Load Balancer.
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>Verify a download</h2>
-        <p style="font-size:13.5px;">SHA-256 checksums of the shipped zips (regenerate with
-        <code>./checksums.sh</code> after swapping a kit):</p>
-        <div id="checksums" class="checksum"><!-- populated from /api/info --></div>
-      </section>
-    </main>
-
-    <script>
-      function fmtBytes(n) {
-        return n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.round(n / 1024) + ' KB';
-      }
-      fetch('/api/info').then((r) => r.json()).then((info) => {
-        var wrap = document.getElementById('kits');
-        info.kits.forEach(function (k) {
-          var d = document.createElement('div');
-          d.className = 'kit';
-          d.innerHTML =
-            '<span class="chip chip-' + (k.id.indexOf('one-') === 0 ? 'warn' : 'info') + '">' + k.tag + '</span>' +
-            '<h2>' + k.name + '</h2>' +
-            '<p class="desc">' + k.description + '</p>' +
-            '<ul>' +
-              '<li><b>docs/</b> — guide PDF + generator</li>' +
-              '<li><b>helm/</b> — agent-privilege chart (.tgz + source)' + (k.id === 'one-gateway-privilege-k8' ? ', quickstart-values.yaml' : '') + '</li>' +
-              '<li><b>tf/</b> — Terraform: namespaces, secrets' + (k.id === 'multi-gateway-privilege-k8' ? ', Redis, load balancer, node releases' : ', gateway release') + '</li>' +
-            '</ul>' +
-            '<a class="btn" href="' + k.url + '" download>Download kit (.zip)</a>' +
-            '<span class="meta">' + fmtBytes(k.bytes) + (k.sha256 ? ' · sha256 ' + k.sha256.slice(0, 8) + '…' : '') + '</span>';
-          wrap.appendChild(d);
-        });
-        var cs = document.getElementById('checksums');
-        info.kits.forEach(function (k) {
-          if (!k.sha256) return;
-          var p = document.createElement('div');
-          p.textContent = k.sha256 + '  ' + k.file;
-          cs.appendChild(p);
-        });
-        if (!cs.children.length) cs.textContent = 'checksums not packaged';
-      }).catch(function () {
-        document.getElementById('kits').innerHTML =
-          '<div class="kit"><h2>API unreachable</h2><p class="desc">Start the app with <code>npm start</code> and reload.</p></div>';
-      });
     </script>
   </body>
 </html>

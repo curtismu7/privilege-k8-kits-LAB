@@ -1,0 +1,131 @@
+
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg-lab);
+  color: var(--text-body);
+  font-family: var(--font-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { color: var(--text); font-weight: 700; }
+code, pre, .mono { font-family: var(--font-mono); }
+[hidden] { display: none !important; }
+
+/* ===== 1. App shell ===== */
+.shell-bar {
+  display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+  padding: 0.65rem 1.25rem;
+  background: var(--box-dark); color: #fff;
+  border-bottom: 3px solid transparent;
+  border-image: var(--accent-gradient) 1;
+  margin: 0 -16px;
+}
+.shell-brand { display: inline-flex; align-items: center; gap: 0.6rem; font-weight: 700; letter-spacing: 0.02em; }
+.shell-logo {
+  width: 1.9rem; height: 1.9rem; border-radius: 4px;
+  background: var(--accent-gradient); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.8rem;
+}
+.shell-nav { display: flex; gap: 0.25rem; flex: 1; }
+.shell-nav a { padding: 0.3rem 0.75rem; border-radius: 999px; color: rgba(255,255,255,0.78); text-decoration: none; font-size: 0.85rem; font-weight: 500; }
+.shell-nav a:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.shell-nav a[aria-current="page"] { color: #fff; background: var(--accent-gradient); font-weight: 600; }
+.shell-right { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
+.shell-badge { padding: 0.1rem 0.5rem; border-radius: 999px; background: var(--accent-gradient); color: #fff; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+@media (max-width: 600px) {
+  .shell-bar { gap: 0.75rem; padding: 0.6rem 1rem; }
+  .shell-nav { order: 3; flex-basis: 100%; }
+}
+
+/* ===== 2. Simulation banner ===== */
+.banner {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 13px;
+}
+.banner[data-state="live"] { border-left-color: var(--focus); }
+
+/* ===== Controls ===== */
+input, textarea, select, button {
+  max-width: 100%;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font: inherit;
+  font-weight: 600;
+  min-height: 40px;
+}
+input::placeholder, textarea::placeholder { color: var(--muted); font-weight: 400; }
+button { cursor: pointer; }
+button:disabled { opacity: 0.75; cursor: not-allowed; }
+button.primary:disabled { opacity: 0.88; }
+button.primary { background: var(--accent-gradient); color: var(--on-accent); border-color: var(--primary-edge); }
+button[aria-selected="true"], button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* ===== 3. Card grid ===== */
+.page { max-width: 1100px; margin: 0 auto; padding: 0.5rem 0 3rem; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+.card {
+  border: 1px solid var(--border); border-radius: 10px;
+  background: var(--surface);
+  border-top: 4px solid var(--accent);
+  padding: 1rem 1.1rem;
+  min-width: 0;
+}
+.card--neutral { border-top-color: var(--border); }
+.card--ok { border-top-color: var(--status-ok); }
+.card h3 { margin: 0 0 0.35rem; font-size: 1rem; }
+.card p { margin: 0; font-size: 0.85rem; }
+.card--neutral h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ===== 4. Key-value panel ===== */
+.kv { margin: 0.6rem 0 0; display: grid; grid-template-columns: minmax(9rem, max-content) 1fr; gap: 0.2rem 0.9rem; font-size: 0.85rem; }
+.kv dt { color: var(--muted); font-weight: 600; }
+.kv dd { margin: 0; }
+
+/* ===== 5. Inspector layout ===== */
+.inspector { display: grid; grid-template-columns: 220px minmax(0, 1fr) minmax(0, 1.2fr); gap: 0.75rem; margin: 1rem 0; }
+.tree { display: grid; gap: 0.25rem; align-content: start; padding: 0.75rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.tree button { text-align: left; border-color: transparent; font-weight: 500; }
+.tree button[aria-selected="true"] { border-color: var(--accent); }
+.panel { padding: 0.9rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); min-width: 0; }
+@media (max-width: 900px) { .inspector { grid-template-columns: 1fr 1fr; } .tree { grid-column: 1 / -1; grid-auto-flow: column; } }
+@media (max-width: 600px) { .inspector { grid-template-columns: 1fr; } .tree { grid-auto-flow: row; } }
+
+/* ===== 6. Status chips ===== */
+.chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.6rem; border-radius: 999px; border: 1px solid var(--border); font-size: 0.75rem; font-weight: 700; }
+.chip--ok { color: var(--status-ok); border-color: var(--status-ok); }
+.chip--warn { color: var(--status-warn); border-color: var(--status-warn); }
+.chip--info { color: var(--status-info); border-color: var(--status-info); }
+.chip--danger { color: var(--danger-text); border-color: var(--danger-text); }
+.chip .dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: currentColor; }
+
+/* ===== 7. Code block, tabs, diagram box ===== */
+pre.code {
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.8rem; margin: 0.6rem 0 0;
+}
+.tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.diagram { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; margin-top: 0.75rem; }
+.dbox { padding: 0.6rem 1rem; border-radius: 8px; color: var(--on-box); font-weight: 600; font-size: 0.85rem; border: 1px solid transparent; }
+.dbox--dark { background: var(--box-dark); }
+.dbox--blue { background: var(--box-blue); }
+.dbox--grey { background: var(--box-grey); }
+.dbox--red { background: var(--box-red); }
+.darrow { color: var(--muted); font-weight: 700; }
+
+.section-label { margin: 2rem 0 0.25rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+
