@@ -56,9 +56,11 @@ test('kits zips contain no stale identifiers in entry names', async () => {
     // Only scan zip ENTRY lines (unzip prints "  length  date  time  name"),
     // not the "Archive: <absolute path>" header, which contains the local
     // checkout path and can false-positive on the author's username.
+    // Date format is locale-dependent (11-05-2026 vs 2026-11-05), so match
+    // any digit-dash-date shape.
     const entryLines = stdout
       .split('\n')
-      .filter((l) => /^\s*\d+\s+\d{2}-\d{2}-\d{4}/.test(l));
+      .filter((l) => /^\s*\d+\s+\d[\d-]*\d\s+\d/.test(l));
     assert.ok(entryLines.length > 5, `${f}: unzip -l produced no entry lines`);
     for (const bad of ['agentless', 'opensearch', 'ping-devops', 'cmuir', 'orion']) {
       const hit = entryLines.find((l) => l.toLowerCase().includes(bad));
