@@ -73,7 +73,7 @@
       <div class="card card--neutral">
         <p class="desc">
           Both kits ship the same 18-page
-          <a class="guide-link" href="/guide" target="_blank" rel="noopener">
+          <a class="guide-link" id="guideLink" href="/guide" target="_blank" rel="noopener">
             PingOne Privilege AI Gateway — Kubernetes Deployment Guide</a>
           (also in each zip under docs/). Start at §3 Prerequisites, then the Quick Start
           (single-node path) or §6–§8 (HA path). Both target any Kubernetes cluster; on GKE
@@ -90,6 +90,16 @@
       </div>
     </main>
 
+    <script>
+      // API base: when served through the lab-proxy WITHOUT the lab cookie
+      // (first visit), a bare /api/* routes to the demo-shelf, not this app.
+      // Deriving the base from the current path keeps every fetch on this lab.
+      var API_BASE = (function () {
+        var m = location.pathname.match(/^(\/[a-z0-9-]+\/)/);
+        return m ? m[1].replace(/\/$/, "") : "";
+      })();
+      function api(p) { return API_BASE + p; }
+    </script>
     <script>
       (function () {
         var t = localStorage.getItem("pkgk.theme");
@@ -110,9 +120,9 @@
           modeSel.value = info.source;
           modePill.textContent = "mode: " + info.source + (info.realAvailable ? "" : " (real unavailable)");
         }
-        fetch("/api/info").then(function (r) { return r.json(); }).then(paintMode);
+        fetch(api("/api/info")).then(function (r) { return r.json(); }).then(paintMode);
         modeSel.addEventListener("change", function () {
-          fetch("/api/mode", {
+          fetch(api("/api/mode"), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ source: modeSel.value })
@@ -120,10 +130,12 @@
         });
       })();
       (function () {
+        var gl = document.getElementById("guideLink");
+        if (gl && API_BASE) gl.setAttribute("href", API_BASE + "/guide");
         function fmtBytes(n) {
           return n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.round(n / 1024) + " KB";
         }
-        fetch("/api/info").then(function (r) { return r.json(); }).then(function (info) {
+        fetch(api("/api/info")).then(function (r) { return r.json(); }).then(function (info) {
           var wrap = document.getElementById("kits");
           info.kits.forEach(function (k) {
             var single = k.id.indexOf("one-") === 0;
