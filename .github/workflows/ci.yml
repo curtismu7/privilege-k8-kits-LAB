@@ -1,0 +1,43 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+
+      - name: Install unzip
+        run: sudo apt-get update && sudo apt-get install -y unzip
+
+      - name: Tests
+        run: node --test test/*.test.js
+
+      - name: No AI attribution
+        run: node scripts/check-no-ai-attribution.mjs
+
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  forbidden-strings:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: History scan (needs the FORBIDDEN_STRINGS repo secret)
+        run: |
+          test -n "${{ secrets.FORBIDDEN_STRINGS }}" || { echo "FORBIDDEN_STRINGS secret not set"; exit 1; }
+          COUNT=$(git log -p --all | grep -cF -f <(printf '%s' "${{ secrets.FORBIDDEN_STRINGS }}") || true)
+          echo "matches: $COUNT"
+          [ "$COUNT" = "0" ]

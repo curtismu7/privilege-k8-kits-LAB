@@ -1,0 +1,17 @@
+{
+  "name": "privilege-k8-kits-lab",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Download hub for the Agent Privilege Gateway Kubernetes deployment kits (single-gateway and multi-gateway HA)",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node --test test/*.test.js",
+    "doctor": "node scripts/doctor.mjs"
+  },
+  "engines": {
+    "node": ">=26"
+  },
+  "license": "MIT"
+}

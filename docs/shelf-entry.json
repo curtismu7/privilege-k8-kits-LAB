@@ -1,0 +1,19 @@
+{
+  "demos": [
+    {
+      "id": "privilege-k8-kits",
+      "name": "Agent Privilege K8 Kits",
+      "kind": "Tool",
+      "description": "Download hub for the Agent Privilege Gateway Kubernetes deployment kits: the single-gateway quick-start package and the multi-gateway HA package (shared Redis, integrated load balancer), plus the shared 18-page deployment guide served inline. Read-only artifact server; offline; no tenant.",
+      "url": "http://localhost:7809",
+      "healthPath": "/api/health",
+      "composeFile": "docker-compose.yml",
+      "composeOverlays": [],
+      "catalogId": null,
+      "pingProducts": [],
+      "notes": "Serves packaged zips + PDF from its own kits/ and docs/ folders. Swap a kit, run ./checksums.sh, npm test. Port 7809 loopback-only; lab-proxy path /privilege-k8-kits/.",
+      "repo": "https://github.com/curtismu7/privilege-k8-kits-LAB",
+      "where": "installed"
+    }
+  ]
+}

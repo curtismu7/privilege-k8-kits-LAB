@@ -1,0 +1,19 @@
+# Local standalone compose. Published loopback-only; joins the shared lab-proxy by its
+# compose network (the proxy resolves privilege-k8-kits-lab-app-1 at request time).
+services:
+  app:
+    build: .
+    image: privilege-k8-kits-lab:local
+    container_name: privilege-k8-kits-lab-app-1
+    environment:
+      PORT: 7809
+      HOST: 0.0.0.0
+      # The lab-proxy's Host for this lab (on port 7809). Loopback always works.
+      LAB_ALLOWED_HOSTS: ${LAB_ALLOWED_HOSTS:-privilege-k8-kits.local.ping-devops.com}
+    ports:
+      - "127.0.0.1:7809:7809"
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+    tmpfs:
+      - /tmp

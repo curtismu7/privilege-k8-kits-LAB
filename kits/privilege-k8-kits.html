@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Privilege Gateway — Kubernetes Deployment Kits</title>
+<style>
+  :root {
+    --ping-red: #d20e0f;
+    --ping-red-dark: #aa0005;
+    --core-dark: #051727;
+    --gray-700: #263746;
+    --gray-600: #5c646b;
+    --gray-400: #e0e2e4;
+    --gray-200: #f7f8f8;
+    --blue: #12538d;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Montserrat', Roboto, sans-serif;
+    color: var(--gray-700);
+    background: var(--gray-200);
+    line-height: 1.6;
+  }
+  header {
+    background: var(--core-dark);
+    color: #fff;
+    padding: 48px 24px 40px;
+    border-bottom: 4px solid var(--ping-red);
+  }
+  header .wrap { max-width: 960px; margin: 0 auto; }
+  .eyebrow {
+    color: var(--ping-red);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  h1 { font-size: 30px; font-weight: 800; margin: 8px 0 6px; }
+  header p { color: #bcd2e2; font-size: 15px; }
+  main { max-width: 960px; margin: 32px auto; padding: 0 24px; }
+  .kits { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 720px) { .kits { grid-template-columns: 1fr; } }
+  .kit {
+    background: #fff;
+    border: 1px solid var(--gray-400);
+    border-top: 4px solid var(--ping-red);
+    border-radius: 8px;
+    padding: 24px;
+  }
+  .kit h2 { font-size: 19px; color: var(--core-dark); margin-bottom: 4px; }
+  .kit .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+  }
+  .tag-one { background: #fee2e2; color: var(--ping-red-dark); }
+  .tag-multi { background: #eef4fb; color: var(--blue); }
+  .kit ul { margin: 12px 0 16px 18px; font-size: 14px; }
+  .kit li { margin-bottom: 5px; }
+  .kit code {
+    font-family: 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
+    font-size: 12px;
+    background: var(--gray-200);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--gray-700);
+  }
+  .btn {
+    display: inline-block;
+    background: var(--ping-red);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 6px;
+  }
+  .btn:hover { background: var(--ping-red-dark); }
+  .btn.secondary {
+    background: transparent;
+    color: var(--ping-red);
+    border: 1.5px solid var(--ping-red);
+    margin-left: 8px;
+  }
+  .btn.secondary:hover { background: #fdeeee; }
+  .size { color: var(--gray-600); font-size: 12px; margin-left: 8px; }
+  section.chooser {
+    background: #fff;
+    border: 1px solid var(--gray-400);
+    border-radius: 8px;
+    padding: 24px;
+    margin-top: 28px;
+  }
+  h3 { color: var(--core-dark); font-size: 16px; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+  th {
+    background: var(--core-dark);
+    color: #fff;
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  td { padding: 8px 12px; border: 1px solid var(--gray-400); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--gray-200); }
+  .note {
+    background: #eef4fb;
+    border-left: 4px solid var(--blue);
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 13.5px;
+    margin-top: 20px;
+  }
+  footer {
+    max-width: 960px;
+    margin: 32px auto;
+    padding: 16px 24px 40px;
+    color: var(--gray-600);
+    font-size: 12px;
+    border-top: 1px solid var(--gray-400);
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Deployment Kits</div>
+    <h1>Agent Privilege Gateway on Kubernetes</h1>
+    <p>Two downloadable kits, one shared 18-page deployment guide. Pick the one that matches your availability target.</p>
+  </div>
+</header>
+<main>
+  <div class="kits">
+    <div class="kit">
+      <span class="tag tag-one">Single node</span>
+      <h2>1 Gateway Privilege K8</h2>
+      <p style="font-size:14px;">Simplest working deployment: one gateway node, no Redis, no load balancer. Client registrations live in gateway memory.</p>
+      <ul>
+        <li><b>docs/</b> — deployment guide PDF (18 pp) with a Quick Start section + generator</li>
+        <li><b>helm/</b> — <code>agent-privilege-0.1.0.tgz</code>, <code>quickstart-values.yaml</code>, chart source</li>
+        <li><b>tf/</b> — Terraform for namespaces, secrets and the gateway release</li>
+      </ul>
+      <a class="btn" href="one-gateway-privilege-k8.zip" download>Download kit (.zip)</a>
+      <span class="size">167 KB</span>
+    </div>
+    <div class="kit">
+      <span class="tag tag-multi">High availability</span>
+      <h2>Multi-Gateway Privilege K8</h2>
+      <p style="font-size:14px;">Full HA platform: shared Redis (registrations survive restarts/failover), integrated load balancer, multiple gateway nodes in one mesh cluster.</p>
+      <ul>
+        <li><b>helm releases + Redis</b> — one release per node, <code>MCPGW_REDIS_URL</code> wired to every namespace</li>
+        <li><b>load balancer</b> — client pinning, callback routing, health checks (integrated, or bring Kong / F5 / HAProxy)</li>
+        <li><b>Guide</b> — covers HAProxy, Kong and F5 BIG-IP example configs (§7.2–7.4)</li>
+      </ul>
+      <a class="btn" href="multi-gateway-privilege-k8.zip" download>Download kit (.zip)</a>
+      <span class="size">976 KB</span>
+    </div>
+  </div>
+
+  <section class="chooser">
+    <h3>Which kit?</h3>
+    <table>
+      <tr><th>Requirement</th><th>1 Gateway</th><th>Multi-Gateway</th></tr>
+      <tr><td>Proof of value / single team pilot</td><td>✔</td><td>Works too (over-provisioned)</td></tr>
+      <tr><td>Registrations survive a gateway restart</td><td>—</td><td>✔ (shared Redis)</td></tr>
+      <tr><td>Node failover without losing all client state</td><td>— (single node)</td><td>✔ (pinning + Redis)</td></tr>
+      <tr><td>Integrated load balancer with stats + park/unpark</td><td>—</td><td>✔ (optional)</td></tr>
+      <tr><td>Operational overhead</td><td>Minimal</td><td>Redis + LB + N namespaces</td></tr>
+    </table>
+    <div class="note">
+      <b>Shared by both kits:</b> the <i>PingOne Privilege AI Gateway — Kubernetes Deployment Guide</i>
+      (docs/ inside each zip). Start at §3 Prerequisites, then the Quick Start (single-node
+      path) or §6–§8 (HA path). Both kits target any Kubernetes cluster; on GKE the
+      Terraform installs ingress-nginx, whose Service provisions a Google Network Load Balancer.
+    </div>
+  </section>
+</main>
+<footer>
+  Ping Identity Proprietary and Confidential · Values shown in examples are placeholders — substitute your own hostnames, identifiers and credentials.
+</footer>
+</body>
+</html>
