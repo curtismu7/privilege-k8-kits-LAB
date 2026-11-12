@@ -6,6 +6,7 @@
     <title>Agent Privilege Gateway — Kubernetes Deployment Kits</title>
     <link rel="stylesheet" href="./standalone-ui.css" />
     <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./top-menu.css" />
     <style>
       /* Kit-page specifics only; layout/components come from styles.css
          (the shared mock patterns) and tokens from standalone-ui.css. */
@@ -28,22 +29,36 @@
   <body>
     <header class="shell-bar">
       <span class="shell-brand"><span class="shell-logo">P</span> Agent Privilege K8 Kits</span>
-      <div class="shell-right">
-        <div class="pill" id="modePill" data-testid="mode-pill">mode: —</div>
-        <label class="shell-theme">Mode
-          <select id="mode-select" data-testid="mode-select">
-            <option value="mock">Mock</option>
-            <option value="real" data-testid="mode-real">Real</option>
-          </select>
-        </label>
-        <label class="shell-theme">Theme
-          <select id="theme-select">
-            <option value="auto">Auto</option>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
-        </label>
-      </div>
+      <nav class="top-menu shell-right" data-testid="top-menu" aria-label="Top menu">
+        <div class="top-menu__row">
+          <span class="pill" id="modePill" data-testid="mode-pill">mode: —</span>
+          <span class="top-menu__ctl">Mode
+            <select id="mode-select" data-testid="mode-select">
+              <option value="mock">Mock</option>
+              <option value="real" data-testid="mode-real">Real</option>
+            </select>
+          </span>
+          <a class="top-menu__shelf top-menu__shelf--accent" href="https://local.ping-devops.com:8443/" target="_blank" rel="noreferrer">Shelf</a>
+        </div>
+        <div class="top-menu__row">
+          <span class="top-menu__ctl">Theme
+            <select id="theme-select">
+              <option value="auto">Auto</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </span>
+          <span class="top-menu__ctl">Text size
+            <select id="font-select" aria-label="Font size">
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+            </select>
+            <button type="button" id="font-minus" aria-label="Smaller text">A−</button>
+            <button type="button" id="font-plus" aria-label="Larger text">A+</button>
+          </span>
+        </div>
+      </nav>
     </header>
 
     <p class="banner" role="note">
@@ -90,6 +105,30 @@
       </div>
     </main>
 
+    <script>
+      (function () {
+        var STEP = { S: "14px", M: "16px", L: "18px" };
+        function apply(step) {
+          document.documentElement.style.fontSize = STEP[step] || "16px";
+          try { localStorage.setItem("pkgk.font", step); } catch (e) {}
+          var sel = document.getElementById("font-select");
+          if (sel) sel.value = step;
+        }
+        var saved = localStorage.getItem("pkgk.font") || "M";
+        document.addEventListener("DOMContentLoaded", function () {
+          apply(saved);
+          var sel = document.getElementById("font-select");
+          var order = ["S", "M", "L"];
+          sel.addEventListener("change", function () { apply(sel.value); });
+          document.getElementById("font-minus").addEventListener("click", function () {
+            var i = Math.max(0, order.indexOf(sel.value) - 1); apply(order[i]);
+          });
+          document.getElementById("font-plus").addEventListener("click", function () {
+            var i = Math.min(2, order.indexOf(sel.value) + 1); apply(order[i]);
+          });
+        });
+      })();
+    </script>
     <script>
       // API base: when served through the lab-proxy WITHOUT the lab cookie
       // (first visit), a bare /api/* routes to the demo-shelf, not this app.
