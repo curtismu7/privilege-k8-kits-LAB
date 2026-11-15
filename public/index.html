@@ -178,6 +178,32 @@
         });
       })();
       (function () {
+        // The Privilege gateway check: one live tools/list through the door with the agent key.
+        var el = document.createElement("section");
+        el.className = "card";
+        el.setAttribute("data-testid", "privilege-check");
+        el.innerHTML = '<h3>Privilege gateway</h3><p id="pc-note" class="muted">Calling the live gateway door…</p>';
+        var kits = document.getElementById("kits");
+        kits.parentNode.insertBefore(el, kits);
+        fetch(api("/api/gateway-check"), { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (d.error) { document.getElementById("pc-note").textContent = d.message || d.error; return; }
+            var l = d.listing || {};
+            var html = '<dl style="display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;margin:.3rem 0">' +
+              '<div><dt style="font-size:.72rem;color:var(--muted)">GATEWAY</dt><dd><code>' + d.gateway + '</code></dd></div>' +
+              '<div><dt style="font-size:.72rem;color:var(--muted)">DOOR</dt><dd><code>' + d.app + '</code></dd></div>' +
+              '<div><dt style="font-size:.72rem;color:var(--muted)">CALLER</dt><dd>' + d.caller + '</dd></div></dl>';
+            html += l.ok
+              ? '<p><strong>tools/list</strong> through the door: ' + l.tools.length + ' tools in ' + l.ms + ' ms</p>'
+              : '<p><strong>tools/list</strong> was refused: ' + ((l.refusal || {}).layer || 'unknown') + '</p>';
+            if (d.refusal && !d.refusal.ok) html += '<p><strong>Refusal probe</strong>: ' + ((d.refusal.refusal || {}).layer || 'refused') + ' — the gateway\'s own words, keys scrubbed.</p>';
+            html += '<p class="muted" style="font-size:.78rem">Real mode here = one live call through the PingOne Privilege gateway with an agent access key from the shared settings file. The key is never shown.</p>';
+            el.innerHTML = '<h3>Privilege gateway</h3>' + html;
+          })
+          .catch(function (e) { document.getElementById("pc-note").textContent = "gateway check failed: " + e; });
+      })();
+      (function () {
         var gl = document.getElementById("guideLink");
         if (gl && API_BASE) gl.setAttribute("href", API_BASE + "/guide");
         function fmtBytes(n) {
