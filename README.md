@@ -61,3 +61,19 @@ calls (no `fetch` outside its own API, no external origins).
 
 Safety: loopback + `LAB_ALLOWED_HOSTS` host check (DNS-rebinding guard), GET/HEAD only,
 path traversal refused, `/kits/` serves only the two known kit files.
+
+
+---
+
+## Real mode: through the PingOne Privilege gateway
+
+Real mode here is one live call through the SE PingOne Privilege gateway
+(`https://mcpgw.ai-demo.ping-devops.com`) with an agent access key from the shared settings
+file (`~/Development/.env`, or the file `STANDALONE_ENV` names).
+
+**Privilege objects this lab uses:** the door (Agentic App) `aggregate-limited` — the gateway's
+MCP aggregate with a tool filter — at client path `/aggregate-limited/mcp`, called with the
+agent access key `KKK_GW_KEY_LAB_AGENT` (write-only, never shown). **What runs in Real:** the
+**Privilege gateway check** (`POST /api/gateway-check`): one live `tools/list` through the door,
+then one `tools/call` probe of a tool no policy grants, so you see the gateway's own refusal
+shape. Settings keys: `KKK_GW_URL`, `KKK_GW_APPS`, `KKK_GW_KEY_<NAME>`.
