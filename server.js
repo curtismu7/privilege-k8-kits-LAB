@@ -3,6 +3,18 @@ import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { hostAllowed, labAllowedHosts, writeAllowed } from './safety.js';
+import { readFileSettings, doorConfig, createRealDoor } from './gatewayReal.js';
+
+// Real mode = the shared gateway hop: an agent key from the shared settings file calling a live Privilege door.
+const KKK_REFUSAL = 'Real gateway check is not configured: set KKK_GW_URL, KKK_GW_APPS and at least one KKK_GW_KEY_<NAME> in ~/Development/.env (or STANDALONE_ENV). The kits keep working.';
+const realDoorFrom = (env = process.env) => {
+  const p = env.STANDALONE_ENV || `${env.HOME || ''}/Development/.env`;
+  let text = '';
+  try { text = fs.readFileSync(p, 'utf8'); } catch { /* the environment may still carry the keys */ }
+  for (const [k, v] of Object.entries(env)) if (k.startsWith('KKK_GW_') && v) text += `\n${k}=${v}`;
+  const cfg = doorConfig(text, 'KKK');
+  return cfg.ok ? createRealDoor({ config: cfg, clientInfo: { name: 'privilege-k8-kits', version: '1.0.0' } }) : null;
+};
 
 const HOST = process.env.HOST || '127.0.0.1';
 const PORT = Number(process.env.PORT) || 7809;
@@ -137,6 +149,31 @@ const server = http.createServer((req, res) => {
         url: `/kits/${k.file}`,
       })),
       guide: { name: 'PingOne-Privilege-AI-Gateway-K8s-Deployment-Guide.pdf', url: '/guide' },
+    });
+    return;
+  }
+
+  // One real gateway check: tools/list through the door with the agent key, then the gateway's refusal
+  // for a tool nothing grants. Proves the gateway is reachable from this lab.
+  if (req.method === 'POST' && pathname === '/api/gateway-check') {
+    if (!writeAllowed(req.method, req.headers, LAB_HOSTS, PORT)) {
+      json(res, 403, { error: 'bad_origin', message: 'this server accepts same-origin writes only' });
+      return;
+    }
+    let body = '';
+    req.on('data', (c) => { body += c; if (body.length > 4096) req.destroy(); });
+    req.on('end', async () => {
+      const door = realDoorFrom(process.env);
+      if (!door) { json(res, 409, { error: 'real_not_available', message: KKK_REFUSAL }); return; }
+      let appArg, callerArg;
+      try { const b = JSON.parse(body || '{}'); appArg = b.app; callerArg = b.caller; } catch { /* defaults */ }
+      const app = String(appArg || door.apps[0]);
+      if (!door.apps.includes(app)) { json(res, 400, { error: 'bad_app', message: `app must be one of ${door.apps.join(', ')}` }); return; }
+      const caller = callerArg && door.callers.some((c) => c.id === callerArg) ? callerArg : door.callers[0].id;
+      const listing = await door.list(app, caller);
+      const out = { app, caller, gateway: door.origin, listing };
+      if (listing.ok) out.refusal = await door.call(app, caller, 'privilege_k8_kits_refusal_probe_tool', {});
+      json(res, 200, out);
     });
     return;
   }
