@@ -33,7 +33,7 @@
         <div class="top-menu__row">
           <span class="pill" id="modePill" data-testid="mode-pill">mode: —</span>
           <span class="top-menu__ctl">Mode
-            <select id="mode-select" data-testid="mode-select">
+            <select id="mode-select" data-testid="mode-select" aria-label="Mode">
               <option value="mock">Mock</option>
               <option value="real" data-testid="mode-real">Real</option>
             </select>
@@ -42,7 +42,7 @@
         </div>
         <div class="top-menu__row">
           <span class="top-menu__ctl">Theme
-            <select id="theme-select">
+            <select id="theme-select" aria-label="Theme">
               <option value="auto">Auto</option>
               <option value="light">Light</option>
               <option value="dark">Dark</option>
@@ -61,14 +61,18 @@
       </nav>
     </header>
 
-    <p class="banner" role="note">
-      SIMULATED, OFFLINE: this page only serves files from this app's own kits/ folder —
-      no tenant is contacted and no credentials are involved. The zips are the real
-      deployment kits (Helm chart, Terraform, guide); every value inside is an example
-      placeholder until you fill in your own.
-    </p>
-
     <main class="page">
+      <!-- ui-pattern: allow P2 the banner text is static in the markup but the page script sets its first sentence from /api/info on load and on every Mock/Real switch, so it states the current mode at runtime -->
+      <p class="banner" role="note" data-testid="banner">
+        <strong id="bannerMode" data-testid="banner-mode">Mode: loading.</strong>
+        SIMULATED, OFFLINE: this page only serves files from this app's own kits/ folder —
+        no tenant is contacted and no credentials are involved. The zips are the real
+        deployment kits (Helm chart, Terraform, guide); every value inside is an example
+        placeholder until you fill in your own.
+      </p>
+
+      <h1>Agent Privilege Gateway Kubernetes Deployment Kits</h1>
+
       <p class="section-label">Deployment kits</p>
       <div class="card-grid" id="kits"><!-- populated from /api/info --></div>
 
@@ -107,9 +111,10 @@
 
     <script>
       (function () {
-        var STEP = { S: "14px", M: "16px", L: "18px" };
+        var STEPS = { S: 1, M: 1, L: 1 };
         function apply(step) {
-          document.documentElement.style.fontSize = STEP[step] || "16px";
+          if (!STEPS[step]) step = "M";
+          document.documentElement.setAttribute("data-font-step", step);
           try { localStorage.setItem("pkgk.font", step); } catch (e) {}
           var sel = document.getElementById("font-select");
           if (sel) sel.value = step;
@@ -155,8 +160,12 @@
       (function () {
         var modeSel = document.getElementById("mode-select");
         var modePill = document.getElementById("modePill");
+        var bannerMode = document.getElementById("bannerMode");
         function paintMode(info) {
           modeSel.value = info.source;
+          bannerMode.textContent = info.source === "real"
+            ? "Real mode selected: the kits are served from disk exactly as in Mock."
+            : "Mock mode.";
           modePill.textContent = "mode: " + info.source + (info.realAvailable ? "" : " (real unavailable)");
         }
         fetch(api("/api/info")).then(function (r) { return r.json(); }).then(paintMode);
