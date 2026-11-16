@@ -8,7 +8,7 @@ Port 7809, loopback-only; lab address `https://local.ping-devops.com:8443/privil
 
 ```sh
 npm start        # http://127.0.0.1:7809
-npm test         # node --test test/*.test.js (6 tests; needs `unzip` on PATH)
+npm test         # node --test test/*.test.js (11 tests; needs `unzip` on PATH)
 ./checksums.sh   # after swapping a kit zip, before npm test
 ```
 
