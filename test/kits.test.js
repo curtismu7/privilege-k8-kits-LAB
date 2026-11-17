@@ -107,3 +107,23 @@ test('mode switch: POST /api/mode flips source, 409 on bad value', async () => {
     app.kill();
   }
 });
+
+// Rule 26 (owner, 2026-11-17): the boot mode is sticky. PK8_LAB_MODE=real boots Real; anything else
+// (a typo, unset) boots Mock. Child process per case, so the module-level boot read is honest.
+test('rule 26: PK8_LAB_MODE=real boots Real, a typo boots Mock, and the toggle still switches', async () => {
+  const { spawn } = await import('node:child_process');
+  const boot = async (modeEnv) => {
+    const app = spawn('node', ['server.js'], { env: { ...process.env, PORT: '7820', HOST: '127.0.0.1', ...modeEnv }, stdio: 'ignore' });
+    await new Promise((r) => setTimeout(r, 800));
+    return { app, base: 'http://127.0.0.1:7820' };
+  };
+  const sticky = await boot({ PK8_LAB_MODE: 'real' });
+  try {
+    assert.equal((await (await fetch(`${sticky.base}/api/info`)).json()).source, 'real', 'sticky boot: Real without a click');
+    const back = await (await fetch(`${sticky.base}/api/mode`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ source: 'mock' }) })).json();
+    assert.equal(back.source, 'mock', 'the toggle still switches back at runtime');
+  } finally { sticky.app.kill(); }
+  const typo = await boot({ PK8_LAB_MODE: 'REAL-SERVER' });
+  try { assert.equal((await (await fetch(`${typo.base}/api/info`)).json()).source, 'mock', 'only the exact word opts in'); }
+  finally { typo.app.kill(); }
+});

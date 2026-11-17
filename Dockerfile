@@ -1,7 +1,7 @@
 FROM node:26-alpine
 WORKDIR /app
 COPY package.json ./
-COPY server.js safety.js checksums.sh ./
+COPY server.js safety.js checksums.sh gatewayReal.js ./
 COPY public ./public
 COPY docs ./docs
 COPY kits ./kits
