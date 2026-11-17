@@ -10,6 +10,9 @@ services:
       HOST: 0.0.0.0
       # The lab-proxy's Host for this lab (on port 7809). Loopback always works.
       LAB_ALLOWED_HOSTS: ${LAB_ALLOWED_HOSTS:-privilege-k8-kits.local.ping-devops.com}
+      # Rule 26 (owner, 2026-11-17): sticky boot mode. PK8_LAB_MODE=real in the .env starts the lab in
+      # Real on boot; a rebuild cannot silently drop it back to Mock. Mock stays the default when unset.
+      PK8_LAB_MODE: ${PK8_LAB_MODE:-mock}
     ports:
       - "127.0.0.1:7809:7809"
     restart: unless-stopped
