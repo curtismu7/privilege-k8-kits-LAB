@@ -24,7 +24,9 @@ const LAB_HOSTS = labAllowedHosts(process.env.LAB_ALLOWED_HOSTS);
 
 const state = {
   // Single runtime: both sources serve the same packaged artifacts from disk.
-  source: 'mock',
+  // Rule 26 (owner, 2026-11-17): sticky boot. PK8_LAB_MODE=real starts in Real, so a rebuild cannot
+  // silently drop the lab back to Mock; anything else boots Mock.
+  source: String(process.env.PK8_LAB_MODE || '').trim().toLowerCase() === 'real' ? 'real' : 'mock',
 };
 
 const KITS = [
