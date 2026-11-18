@@ -13,6 +13,9 @@
       .kit-list .desc { color: var(--text-body); }
       .kit-list ul { margin: 0.6rem 0 0.8rem 1.1rem; font-size: 0.85rem; color: var(--text-body); }
       .kit-list li { margin-bottom: 0.3rem; }
+      .pc-facts { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; margin: .3rem 0; }
+      .pc-facts dt { font-size: .72rem; color: var(--muted); }
+      .pc-note { font-size: .78rem; }
       .btn {
         display: inline-block; background: var(--accent); color: var(--on-accent);
         text-decoration: none; font-weight: 600; font-size: 0.9rem;
@@ -190,15 +193,15 @@
           .then(function (d) {
             if (d.error) { document.getElementById("pc-note").textContent = d.message || d.error; return; }
             var l = d.listing || {};
-            var html = '<dl style="display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;margin:.3rem 0">' +
-              '<div><dt style="font-size:.72rem;color:var(--muted)">GATEWAY</dt><dd><code>' + d.gateway + '</code></dd></div>' +
-              '<div><dt style="font-size:.72rem;color:var(--muted)">DOOR</dt><dd><code>' + d.app + '</code></dd></div>' +
-              '<div><dt style="font-size:.72rem;color:var(--muted)">CALLER</dt><dd>' + d.caller + '</dd></div></dl>';
+            var html = '<dl class="pc-facts">' +
+              '<div><dt>GATEWAY</dt><dd><code>' + d.gateway + '</code></dd></div>' +
+              '<div><dt>DOOR</dt><dd><code>' + d.app + '</code></dd></div>' +
+              '<div><dt>CALLER</dt><dd>' + d.caller + '</dd></div></dl>';
             html += l.ok
               ? '<p><strong>tools/list</strong> through the door: ' + l.tools.length + ' tools in ' + l.ms + ' ms</p>'
               : '<p><strong>tools/list</strong> was refused: ' + ((l.refusal || {}).layer || 'unknown') + '</p>';
             if (d.refusal && !d.refusal.ok) html += '<p><strong>Refusal probe</strong>: ' + ((d.refusal.refusal || {}).layer || 'refused') + ' — the gateway\'s own words, keys scrubbed.</p>';
-            html += '<p class="muted" style="font-size:.78rem">Real mode here = one live call through the PingOne Privilege gateway with an agent access key from the shared settings file. The key is never shown.</p>';
+            html += '<p class="muted pc-note">Real mode here = one live call through the PingOne Privilege gateway with an agent access key from the shared settings file. The key is never shown.</p>';
             el.innerHTML = '<h3>Privilege gateway</h3>' + html;
           })
           .catch(function (e) { document.getElementById("pc-note").textContent = "gateway check failed: " + e; });
