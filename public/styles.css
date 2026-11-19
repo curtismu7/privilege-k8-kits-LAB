@@ -13,7 +13,9 @@ body {
 }
 h1, h2, h3 { color: var(--text); font-weight: 700; }
 code, pre, .mono { font-family: var(--font-mono); }
-[hidden] { display: none !important; }
+/* [hidden] wins by specificity: the doubled attribute selector (0,2,0) beats any single class
+   rule (0,1,0) that sets display later in this sheet. */
+[hidden][hidden] { display: none; }
 
 /* ===== 1. App shell ===== */
 .shell-bar {
