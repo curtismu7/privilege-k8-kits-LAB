@@ -26,7 +26,7 @@ code, pre, .mono { font-family: var(--font-mono); }
   border-image: var(--accent-gradient) 1;
   margin: 0 -16px;
 }
-.shell-brand { display: inline-flex; align-items: center; gap: 0.6rem; font-weight: 700; letter-spacing: 0.02em; }
+.shell-brand  { display: inline-flex; align-items: center; gap: 0.6rem; font-weight: 700; letter-spacing: 0.02em; }
 .shell-logo {
   width: 1.9rem; height: 1.9rem; border-radius: 4px;
   background: var(--accent-gradient); color: var(--on-accent);
