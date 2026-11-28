@@ -133,3 +133,8 @@ html[data-font-step="L"] { font-size: 18px; }
 
 .section-label { margin: 2rem 0 0.25rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
 
+
+/* Talk track panel: content loads once from /api/talk-track. */
+#talktrack-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(26rem, 90vw); overflow-y: auto; background: var(--surface); color: var(--text); border-left: 2px solid var(--accent); box-shadow: -4px 0 16px var(--shadow-ink); padding: 1rem; z-index: 50; white-space: pre-wrap; font-size: .875rem; line-height: 1.5; }
+#talktrack-panel h2 { margin-top: 0; }
+#talktrack-panel[hidden] { display: none; }
