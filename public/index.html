@@ -60,6 +60,7 @@
             <button type="button" id="font-minus" aria-label="Smaller text">A−</button>
             <button type="button" id="font-plus" aria-label="Larger text">A+</button>
           </span>
+          <button type="button" id="talktrack-btn" aria-pressed="false" data-testid="talk-track-toggle" title="Show the presenter script alongside the page">Talk track</button>
         </div>
       </nav>
     </header>
@@ -247,6 +248,29 @@
           document.getElementById("kits").innerHTML =
             '<div class="card card--neutral"><h3>API unreachable</h3>' +
             '<p class="desc">Start the app with <code>npm start</code> and reload.</p></div>';
+        });
+      })();
+    </script>
+    <aside id="talktrack-panel" hidden aria-label="Talk track">
+      <h2>Talk track</h2>
+      <div id="talktrack-body">Loading…</div>
+    </aside>
+    <script>
+      // Talk track: toggle the side panel; content loads once from /api/talk-track.
+      (function () {
+        var btn = document.getElementById("talktrack-btn"), panel = document.getElementById("talktrack-panel");
+        btn.addEventListener("click", function () {
+          var show = panel.hidden;
+          panel.hidden = !show;
+          btn.setAttribute("aria-pressed", String(show));
+          if (show && document.getElementById("talktrack-body").textContent === "Loading…") {
+            fetch("/api/talk-track").then(function (r) { return r.ok ? r.text() : "No talk track."; })
+              .then(function (t) { document.getElementById("talktrack-body").textContent = t; })
+              .catch(function () { document.getElementById("talktrack-body").textContent = "No talk track."; });
+          }
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && !panel.hidden) { panel.hidden = true; btn.setAttribute("aria-pressed", "false"); }
         });
       })();
     </script>

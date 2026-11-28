@@ -227,6 +227,11 @@ const server = http.createServer((req, res) => {
     serveFile(res, path.join(STATIC_DIR, 'index.html'));
     return;
   }
+  // The presenter script (docs/talk-track.md), served as plain text for the Talk-track panel.
+  if (pathname === '/api/talk-track') {
+    serveFile(res, path.resolve('docs', 'talk-track.md'), { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
+    return;
+  }
   if (pathname.startsWith('/kits/')) {
     const name = path.basename(pathname);
     if (!KITS.some((k) => k.file === name)) {
